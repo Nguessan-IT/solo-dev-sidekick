@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: transparent;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+    .splash-container {
+      width: 440px;
+      height: 320px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(2%, 2%); }
+    }
+    .logo {
+      position: relative;
+      z-index: 1;
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -1px;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+    .title {
+      position: relative;
+      z-index: 1;
+      color: white;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      position: relative;
+      z-index: 1;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .loader {
+      position: relative;
+      z-index: 1;
+      width: 120px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .loader-bar {
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      border-radius: 3px;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-container">
+    <div class="logo">FD</div>
+    <div class="title">Fact-Digit</div>
+    <div class="subtitle">Facturation & Gestion</div>
+    <div class="loader"><div class="loader-bar"></div></div>
+  </div>
+</body>
+</html>
