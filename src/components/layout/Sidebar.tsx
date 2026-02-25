@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const navItems = [
-  { to: "/", icon: LayoutDashboard, label: "Tableau de bord" },
+  { to: "/dashboard", icon: LayoutDashboard, label: "Tableau de bord" },
   { to: "/clients", icon: Users, label: "Clients" },
   { to: "/products", icon: Package, label: "Produits" },
   { to: "/invoices", icon: FileText, label: "Factures" },

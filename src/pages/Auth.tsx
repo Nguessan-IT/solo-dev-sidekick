@@ -36,8 +36,8 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">Fact-Digit</CardTitle>
-          <CardDescription>Facturation & Gestion d'entreprise</CardDescription>
+          <CardTitle className="text-2xl font-bold text-foreground">Fact-Digit</CardTitle>
+          <CardDescription>Solution de facturation pour les entreprises ivoiriennes</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">
