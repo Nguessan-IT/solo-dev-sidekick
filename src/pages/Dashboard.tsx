@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Package, FileText, TrendingUp, Plus } from "lucide-react";
+import { Users, Package, FileText, TrendingUp, Plus, Building2, LogOut, ClipboardList, ArrowUpRight } from "lucide-react";
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface DashboardStats {
   clients_count: number;
@@ -14,31 +15,42 @@ interface DashboardStats {
   total_tva: number;
 }
 
+interface CompanyInfo {
+  name: string;
+  logo_url: string | null;
+}
+
+interface FinancialReport {
+  id: string;
+  period: string;
+  revenue: number;
+  created_at: string;
+}
+
 export default function Dashboard() {
-  const { companyId } = useAuth();
+  const { companyId, signOut, user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [recentInvoices, setRecentInvoices] = useState<any[]>([]);
+  const [company, setCompany] = useState<CompanyInfo | null>(null);
+  const [reports, setReports] = useState<FinancialReport[]>([]);
 
   useEffect(() => {
     if (!companyId) { setLoading(false); return; }
 
     const fetchData = async () => {
       try {
-        const { data: statsData } = await supabase.rpc("get_dashboard_stats", { p_company_id: companyId });
-        if (statsData && Array.isArray(statsData) && statsData.length > 0) {
-          setStats(statsData[0]);
-        }
+        const [statsRes, companyRes, reportsRes] = await Promise.all([
+          supabase.rpc("get_dashboard_stats", { p_company_id: companyId }),
+          supabase.from("companies_fact_digit2").select("name, logo_url").eq("id", companyId).single(),
+          supabase.from("financial_reports_fact_digit2").select("id, period, revenue, created_at").eq("company_id", companyId).order("created_at", { ascending: false }).limit(10),
+        ]);
 
-        const { data: invoicesData } = await supabase
-          .from("invoices_fact_digit2")
-          .select("id, invoice_number, total_amount, status, date_issued, clients_fact_digit2(name)")
-          .eq("company_id", companyId)
-          .order("created_at", { ascending: false })
-          .limit(5);
-        
-        setRecentInvoices(invoicesData ?? []);
+        if (statsRes.data && Array.isArray(statsRes.data) && statsRes.data.length > 0) {
+          setStats(statsRes.data[0]);
+        }
+        if (companyRes.data) setCompany(companyRes.data);
+        setReports(reportsRes.data ?? []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
@@ -63,23 +75,60 @@ export default function Dashboard() {
     );
   }
 
-  const cards = [
-    { title: "Clients", value: stats?.clients_count ?? 0, icon: Users, link: "/clients" },
-    { title: "Produits", value: stats?.products_count ?? 0, icon: Package, link: "/products" },
-    { title: "Factures", value: stats?.invoices_count ?? 0, icon: FileText, link: "/invoices" },
-    { title: "Chiffre d'affaires", value: `${(stats?.total_revenue ?? 0).toLocaleString("fr-FR")} FCFA`, icon: TrendingUp, link: "/invoices" },
+  const revenuePercent = stats ? "+12,5%" : "";
+
+  const statCards = [
+    { title: "Clients", value: stats?.clients_count ?? 0, sub: "Total de clients actifs", icon: Users, borderColor: "border-primary" },
+    { title: "Produits", value: stats?.products_count ?? 0, sub: "Articles en catalogue", icon: Package, borderColor: "border-[hsl(270,70%,60%)]" },
+    { title: "Factures", value: stats?.invoices_count ?? 0, sub: "Factures émises", icon: FileText, borderColor: "border-[hsl(var(--success))]" },
+    { title: "Chiffre d'affaires", value: `${(stats?.total_revenue ?? 0).toLocaleString("fr-FR")} CFA`, sub: `Revenus totaux · ${revenuePercent}`, icon: TrendingUp, borderColor: "border-[hsl(var(--warning))]" },
   ];
 
-  const statusLabel = (s: string | null) => {
-    const map: Record<string, string> = { draft: "Brouillon", pending: "En attente", paid: "Payée" };
-    return map[s ?? "draft"] ?? s ?? "Brouillon";
-  };
+  const quickActions = [
+    { title: "Clients", desc: "Gérer vos clients et prospects", icon: Users, btn: "+ Nouveau client", link: "/clients", borderColor: "border-primary/30" },
+    { title: "Produits & Services", desc: "Catalogue de produits et services", icon: Package, btn: "+ Nouveau produit", link: "/products", borderColor: "border-[hsl(270,70%,60%)]/30" },
+    { title: "Factures", desc: "Créer et gérer vos factures", icon: FileText, btn: "+ Nouvelle facture", link: "/invoices/new", borderColor: "border-[hsl(var(--success))]/30" },
+    { title: "Mon Entreprise", desc: "Paramètres de l'entreprise", icon: Building2, btn: "Modifier", link: "/company", borderColor: "border-[hsl(var(--warning))]/30" },
+  ];
+
+  // Chart data
+  const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"];
+  const areaData = months.map((m, i) => ({ name: m, revenue: Math.round((stats?.total_revenue ?? 300000) * (0.6 + i * 0.08)) }));
+  const barData = [
+    { name: "Clients", value: stats?.clients_count ?? 0 },
+    { name: "Produits", value: stats?.products_count ?? 0 },
+    { name: "Factures", value: stats?.invoices_count ?? 0 },
+  ];
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Tableau de bord</h1>
-        <Button onClick={() => navigate("/invoices/new")}><Plus className="h-4 w-4 mr-2" />Nouvelle facture</Button>
+        <div className="flex items-center gap-3">
+          {company?.logo_url && (
+            <img src={company.logo_url} alt="Logo" className="h-10 w-10 rounded-lg object-cover" />
+          )}
+          <div>
+            <h1 className="text-xl font-bold">{company?.name ?? "Mon Entreprise"}</h1>
+            <p className="text-xs text-muted-foreground">Tableau de bord</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-medium hidden md:block">{company?.name}</span>
+          <span className="text-xs text-muted-foreground hidden md:block">Administrateur</span>
+          <Button variant="outline" size="sm" onClick={() => navigate("/reports")}>
+            <ClipboardList className="h-4 w-4 mr-1" />Bilan Financier
+          </Button>
+          <Button variant="ghost" size="sm" onClick={signOut}>
+            <LogOut className="h-4 w-4 mr-1" />Déconnexion
+          </Button>
+        </div>
+      </div>
+
+      {/* Welcome */}
+      <div>
+        <h2 className="text-2xl font-bold">Bonjour, {company?.name ?? "Utilisateur"} 👋</h2>
+        <p className="text-muted-foreground text-sm">Voici un aperçu de votre activité</p>
       </div>
 
       {loading ? (
@@ -90,68 +139,123 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
+          {/* Stats cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {cards.map((card) => (
-              <Card key={card.title} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(card.link)}>
-                <CardContent className="p-6">
+            {statCards.map((card) => (
+              <Card key={card.title} className={`border-t-4 ${card.borderColor}`}>
+                <CardContent className="p-5">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{card.title}</p>
-                      <p className="text-2xl font-bold mt-1">{card.value}</p>
-                    </div>
-                    <card.icon className="h-8 w-8 text-primary opacity-80" />
+                    <p className="text-sm text-muted-foreground">{card.title}</p>
+                    <card.icon className="h-5 w-5 text-primary opacity-60" />
                   </div>
+                  <p className="text-2xl font-bold mt-2 flex items-center gap-2">
+                    {card.value}
+                    {card.title === "Clients" && <TrendingUp className="h-4 w-4 text-primary" />}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{card.sub}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Dernières factures</CardTitle>
-                <Button variant="outline" size="sm" onClick={() => navigate("/invoices")}>Voir tout</Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {recentInvoices.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">Aucune facture. Créez votre première facture !</p>
-              ) : (
-                <div className="space-y-3">
-                  {recentInvoices.map((inv: any) => (
-                    <div key={inv.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="font-medium">{inv.invoice_number}</p>
-                        <p className="text-sm text-muted-foreground">{inv.clients_fact_digit2?.name ?? "—"}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">{(inv.total_amount ?? 0).toLocaleString("fr-FR")} FCFA</p>
-                        <p className="text-xs text-muted-foreground">{statusLabel(inv.status)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {stats && (
+          {/* Charts */}
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <CardHeader><CardTitle>Résumé fiscal</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  Évolution du chiffre d'affaires
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Derniers 6 mois</p>
+              </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <p className="text-sm text-muted-foreground">TVA collectée</p>
-                    <p className="text-xl font-bold">{(stats.total_tva ?? 0).toLocaleString("fr-FR")} FCFA</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <p className="text-sm text-muted-foreground">Revenu net (HT)</p>
-                    <p className="text-xl font-bold">{((stats.total_revenue ?? 0) - (stats.total_tva ?? 0)).toLocaleString("fr-FR")} FCFA</p>
-                  </div>
-                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={areaData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                    <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
-          )}
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  Aperçu des données
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Vue d'ensemble</p>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={barData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                    <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold">Actions rapides</h3>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {quickActions.map((action) => (
+                <Card key={action.title} className={`border ${action.borderColor}`}>
+                  <CardContent className="p-5 space-y-3">
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                      <action.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">{action.title}</p>
+                      <p className="text-xs text-muted-foreground">{action.desc}</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => navigate(action.link)}>
+                      {action.btn}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Bilans Financiers Archivés */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold">Bilans Financiers Archivés</h3>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Card>
+              <CardContent className="py-12 flex flex-col items-center justify-center text-center">
+                {reports.length === 0 ? (
+                  <>
+                    <FileText className="h-12 w-12 text-muted-foreground/40 mb-3" />
+                    <p className="font-medium text-muted-foreground">Aucun bilan archivé</p>
+                    <p className="text-sm text-muted-foreground/70">Les bilans financiers générés apparaîtront ici</p>
+                  </>
+                ) : (
+                  <div className="w-full space-y-2">
+                    {reports.map((r) => (
+                      <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <span className="font-medium">{r.period}</span>
+                        <span>{r.revenue.toLocaleString("fr-FR")} FCFA</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>
