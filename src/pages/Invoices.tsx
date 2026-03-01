@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -68,20 +68,26 @@ export default function Invoices() {
                 <TableHead>Date</TableHead>
                 <TableHead>Montant (FCFA)</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Chargement...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Chargement...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucune facture</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucune facture</TableCell></TableRow>
               ) : filtered.map((inv) => (
-                <TableRow key={inv.id}>
+                <TableRow key={inv.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/invoices/${inv.id}`)}>
                   <TableCell className="font-medium">{inv.invoice_number}</TableCell>
                   <TableCell>{inv.clients_fact_digit2?.name ?? "—"}</TableCell>
                   <TableCell>{format(new Date(inv.date_issued), "dd MMM yyyy", { locale: fr })}</TableCell>
                   <TableCell>{(inv.total_amount ?? 0).toLocaleString("fr-FR")}</TableCell>
                   <TableCell>{statusBadge(inv.status)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); navigate(`/invoices/${inv.id}`); }}>
+                      <Eye className="h-4 w-4 mr-1" />Voir
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

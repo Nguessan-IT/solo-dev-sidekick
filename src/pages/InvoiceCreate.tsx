@@ -134,7 +134,6 @@ export default function InvoiceCreate() {
         quantity: it.quantity,
         unit_price: it.unit_price,
         tva_rate: it.tva_rate,
-        total_price: it.quantity * it.unit_price,
         product_id: it.product_id || null,
       }));
 
