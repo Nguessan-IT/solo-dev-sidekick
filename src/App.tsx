@@ -10,6 +10,7 @@ import Clients from "@/pages/Clients";
 import Products from "@/pages/Products";
 import Invoices from "@/pages/Invoices";
 import InvoiceCreate from "@/pages/InvoiceCreate";
+import InvoiceView from "@/pages/InvoiceView";
 import Company from "@/pages/Company";
 import NotFound from "@/pages/NotFound";
 
@@ -48,6 +49,7 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/new" element={<InvoiceCreate />} />
+              <Route path="/invoices/:id" element={<InvoiceView />} />
               <Route path="/company" element={<Company />} />
             </Route>
             <Route path="*" element={<NotFound />} />
