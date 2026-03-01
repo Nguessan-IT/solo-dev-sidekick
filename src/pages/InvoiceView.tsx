@@ -193,7 +193,32 @@ export default function InvoiceView() {
       {/* Invoice Document */}
       <Card className="shadow-lg">
         <CardContent className="p-0">
-          <div ref={invoiceRef} className="bg-white text-black p-8 min-h-[297mm]" style={{ fontFamily: "'Consolas', 'Courier New', monospace", fontSize: "11px" }}>
+           <div ref={invoiceRef} className="relative bg-white text-black p-8 min-h-[297mm] overflow-hidden" style={{ fontFamily: "'Consolas', 'Courier New', monospace", fontSize: "11px" }}>
+            {/* Watermark / Filigrane */}
+            {company?.logo_url ? (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+                <img
+                  src={company.logo_url}
+                  alt=""
+                  className="w-[400px] h-[400px] object-contain"
+                  style={{ opacity: 0.04 }}
+                  crossOrigin="anonymous"
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 0 }}>
+                <span className="font-bold text-gray-200 select-none" style={{ fontSize: "72px", opacity: 0.06, transform: "rotate(-30deg)" }}>
+                  {company?.name}
+                </span>
+              </div>
+            )}
+
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, background: "radial-gradient(ellipse at 20% 0%, rgba(59,130,246,0.03) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(16,185,129,0.03) 0%, transparent 50%)" }} />
+
+            {/* Content layer */}
+            <div className="relative" style={{ zIndex: 1 }}>
+
             {/* Header */}
             <div className="flex justify-between items-start mb-8">
               <div className="flex items-start gap-4">
@@ -201,24 +226,24 @@ export default function InvoiceView() {
                   <img
                     src={company.logo_url}
                     alt="Logo"
-                    className="h-16 w-16 object-contain rounded"
+                    className="h-24 w-24 object-contain rounded-lg shadow-sm border border-gray-100"
                     crossOrigin="anonymous"
                   />
                 )}
                 <div>
                   <h2 className="font-bold text-gray-900" style={{ fontSize: "13px" }}>{company?.name}</h2>
-                  {company?.address && <p className="text-sm text-gray-600">{company.address}</p>}
-                  {company?.phone && <p className="text-sm text-gray-600">Tél: {company.phone}</p>}
-                  {company?.email && <p className="text-sm text-gray-600">{company.email}</p>}
-                  {company?.rccm && <p className="text-sm text-gray-600">RCCM: {company.rccm}</p>}
-                  {company?.numero_cc && <p className="text-sm text-gray-600">N° CC: {company.numero_cc}</p>}
+                  {company?.address && <p className="text-gray-600">{company.address}</p>}
+                  {company?.phone && <p className="text-gray-600">Tél: {company.phone}</p>}
+                  {company?.email && <p className="text-gray-600">{company.email}</p>}
+                  {company?.rccm && <p className="text-gray-600">RCCM: {company.rccm}</p>}
+                  {company?.numero_cc && <p className="text-gray-600">N° CC: {company.numero_cc}</p>}
                 </div>
               </div>
               <div className="text-right">
-                <h1 className="font-bold text-blue-600" style={{ fontSize: "13px" }}>FACTURE</h1>
-                <p className="text-sm text-gray-600 mt-1">N° {invoice.invoice_number}</p>
+                <h1 className="font-bold" style={{ fontSize: "13px", color: "#2563eb" }}>FACTURE</h1>
+                <p className="text-gray-600 mt-1">N° {invoice.invoice_number}</p>
                 {invoice.fne_number && (
-                  <p className="text-sm font-medium text-green-700 mt-1">
+                  <p className="font-medium mt-1" style={{ color: "#15803d" }}>
                     FNE: {invoice.fne_number}
                   </p>
                 )}
@@ -315,6 +340,7 @@ export default function InvoiceView() {
                 <p>{company?.name} — {company?.address ?? ""} — {company?.phone ?? ""}</p>
               </div>
             </div>
+            </div> {/* end content layer */}
           </div>
         </CardContent>
       </Card>
