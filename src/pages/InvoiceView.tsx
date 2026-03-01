@@ -193,7 +193,7 @@ export default function InvoiceView() {
       {/* Invoice Document */}
       <Card className="shadow-lg">
         <CardContent className="p-0">
-          <div ref={invoiceRef} className="bg-white text-black p-8 min-h-[297mm]" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <div ref={invoiceRef} className="bg-white text-black p-8 min-h-[297mm]" style={{ fontFamily: "'Consolas', 'Courier New', monospace", fontSize: "11px" }}>
             {/* Header */}
             <div className="flex justify-between items-start mb-8">
               <div className="flex items-start gap-4">
@@ -206,7 +206,7 @@ export default function InvoiceView() {
                   />
                 )}
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{company?.name}</h2>
+                  <h2 className="font-bold text-gray-900" style={{ fontSize: "13px" }}>{company?.name}</h2>
                   {company?.address && <p className="text-sm text-gray-600">{company.address}</p>}
                   {company?.phone && <p className="text-sm text-gray-600">Tél: {company.phone}</p>}
                   {company?.email && <p className="text-sm text-gray-600">{company.email}</p>}
@@ -215,7 +215,7 @@ export default function InvoiceView() {
                 </div>
               </div>
               <div className="text-right">
-                <h1 className="text-3xl font-bold text-blue-600">FACTURE</h1>
+                <h1 className="font-bold text-blue-600" style={{ fontSize: "13px" }}>FACTURE</h1>
                 <p className="text-sm text-gray-600 mt-1">N° {invoice.invoice_number}</p>
                 {invoice.fne_number && (
                   <p className="text-sm font-medium text-green-700 mt-1">
@@ -228,7 +228,7 @@ export default function InvoiceView() {
             {/* Info grid */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Facturé à</h3>
+                <h3 className="font-semibold text-gray-500 uppercase mb-2" style={{ fontSize: "11px" }}>Facturé à</h3>
                 <p className="font-semibold text-gray-900">{client?.name}</p>
                 {client?.address && <p className="text-sm text-gray-600">{client.address}</p>}
                 {client?.phone && <p className="text-sm text-gray-600">Tél: {client.phone}</p>}
@@ -237,7 +237,7 @@ export default function InvoiceView() {
                 {client?.numero_cc && <p className="text-sm text-gray-600">N° CC: {client.numero_cc}</p>}
               </div>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Détails</h3>
+                <h3 className="font-semibold text-gray-500 uppercase mb-2" style={{ fontSize: "11px" }}>Détails</h3>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Date d'émission:</span>
@@ -249,10 +249,6 @@ export default function InvoiceView() {
                       <span className="font-medium">{format(new Date(invoice.date_due), "dd MMMM yyyy", { locale: fr })}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Statut FNE:</span>
-                    <span className="font-medium">{fneLabel(invoice.fne_status)}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -305,7 +301,7 @@ export default function InvoiceView() {
             {/* Notes */}
             {invoice.notes && (
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">Notes</h3>
+                <h3 className="font-semibold text-gray-500 uppercase mb-1" style={{ fontSize: "11px" }}>Notes</h3>
                 <p className="text-sm text-gray-700">{invoice.notes}</p>
               </div>
             )}
