@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Users, Package, FileText, TrendingUp, Building2, LogOut, ClipboardList, ArrowUpRight, Zap, BarChart3, Activity } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
+import { useSuperAdmin } from "@/hooks/useSuperAdmin";
+import SuperAdminPanel from "@/components/dashboard/SuperAdminPanel";
 
 interface DashboardStats {
   clients_count: number;
@@ -44,6 +46,7 @@ const GlowOrb = ({ className }: { className?: string }) => (
 export default function Dashboard() {
   const { companyId, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isSuperAdmin } = useSuperAdmin();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<CompanyInfo | null>(null);
@@ -388,6 +391,9 @@ export default function Dashboard() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Super Admin Panel */}
+      {isSuperAdmin && <SuperAdminPanel />}
     </div>
   );
 }
