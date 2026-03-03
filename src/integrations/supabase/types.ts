@@ -2021,7 +2021,7 @@ export type Database = {
       user_company_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "super_admin"
       document_status_keyli: "pending" | "approved" | "rejected"
       document_type_keyli:
         | "acd"
@@ -2184,7 +2184,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "super_admin"],
       document_status_keyli: ["pending", "approved", "rejected"],
       document_type_keyli: [
         "acd",
