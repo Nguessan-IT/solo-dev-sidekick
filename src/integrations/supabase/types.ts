@@ -2016,6 +2016,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin_keyli: { Args: { user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       promote_to_admin_keyli: { Args: { user_email: string }; Returns: string }
       secure_function_example: { Args: never; Returns: string }
       user_company_id: { Args: { _user_id: string }; Returns: string }
