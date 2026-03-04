@@ -13,6 +13,7 @@ import InvoiceCreate from "@/pages/InvoiceCreate";
 import InvoiceView from "@/pages/InvoiceView";
 import Company from "@/pages/Company";
 import Reports from "@/pages/Reports";
+import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ function App() {
           <Routes>
             <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
             <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clients" element={<Clients />} />
