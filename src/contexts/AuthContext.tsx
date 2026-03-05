@@ -48,10 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchCompanyId = async (userId: string) => {
     const { data } = await supabase
       .from("profiles_fact_digit2")
-      .select("company_id")
+      .select("id, company_id")
       .eq("user_id", userId)
-      .single();
-    setCompanyId(data?.company_id ?? null);
+      .maybeSingle();
+    // Si aucun profil Fact-Digit, l'utilisateur n'appartient pas à ce projet
+    if (!data) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setCompanyId(null);
+      return;
+    }
+    setCompanyId(data.company_id ?? null);
   };
 
   const signOut = async () => {
