@@ -79,26 +79,21 @@ export default function Auth() {
     if (error) { toast.error(error.message); setLoading(false); return; }
 
     if (authData.user) {
-      const { data: company, error: companyError } = await supabase
-        .from("companies_fact_digit2")
-        .insert({
-          name: companyName,
-          address: companyAddress || null,
-          phone: companyPhone || null,
-          rccm: rccm || null,
-          numero_cc: numeroCC || null,
-          email: email,
-        })
-        .select()
-        .single();
+      const { error: rpcError } = await supabase.rpc("create_company_for_signup" as any, {
+        _user_id: authData.user.id,
+        _company_name: companyName,
+        _company_address: companyAddress || undefined,
+        _company_phone: companyPhone || undefined,
+        _company_email: email,
+        _company_rccm: rccm || undefined,
+        _company_numero_cc: numeroCC || undefined,
+        _user_phone: phone || undefined,
+        _user_first_name: firstName,
+        _user_last_name: lastName,
+      });
 
-      if (companyError) {
-        console.error("Company creation error:", companyError);
-      } else if (company) {
-        await supabase
-          .from("profiles_fact_digit2")
-          .update({ company_id: company.id, phone: phone || null, first_name: firstName, last_name: lastName })
-          .eq("user_id", authData.user.id);
+      if (rpcError) {
+        console.error("Company creation error:", rpcError);
       }
     }
 
