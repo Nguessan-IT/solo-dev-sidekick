@@ -1996,6 +1996,21 @@ export type Database = {
       }
     }
     Functions: {
+      create_company_for_signup: {
+        Args: {
+          _company_address?: string
+          _company_email?: string
+          _company_name: string
+          _company_numero_cc?: string
+          _company_phone?: string
+          _company_rccm?: string
+          _user_first_name?: string
+          _user_id: string
+          _user_last_name?: string
+          _user_phone?: string
+        }
+        Returns: string
+      }
       generate_order_number: { Args: never; Returns: string }
       get_dashboard_stats: {
         Args: { p_company_id: string }
