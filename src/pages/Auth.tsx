@@ -30,16 +30,38 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) toast.error(error.message);
-    else navigate("/");
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+    // Vérifier que l'utilisateur appartient à Fact-Digit
+    const { data: profile } = await supabase
+      .from("profiles_fact_digit2")
+      .select("id")
+      .eq("user_id", authData.user.id)
+      .maybeSingle();
+    if (!profile) {
+      await supabase.auth.signOut();
+      toast.error("Aucun compte Fact-Digit associé à cet email.");
+      setLoading(false);
+      return;
+    }
+    navigate("/dashboard");
     setLoading(false);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { role_fact_digit2: "user" },
+      },
+    });
     if (error) toast.error(error.message);
     else toast.success("Compte créé ! Vérifiez votre email.");
     setLoading(false);
