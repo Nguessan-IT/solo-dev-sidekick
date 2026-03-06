@@ -86,12 +86,21 @@ export default function Company() {
       const { error } = await supabase.from("companies_fact_digit2").update(payload).eq("id", companyId);
       if (error) toast.error(error.message);
       else toast.success("Entreprise mise à jour");
-    } else {
-      const { data, error } = await supabase.from("companies_fact_digit2").insert(payload).select().single();
+    } else if (user) {
+      // Use RPC to bypass RLS restrictions during company creation
+      const { error } = await supabase.rpc("create_company_for_signup" as any, {
+        _user_id: user.id,
+        _company_name: form.name,
+        _company_address: form.address || undefined,
+        _company_phone: form.phone || undefined,
+        _company_email: form.email || undefined,
+        _company_rccm: form.rccm || undefined,
+        _company_numero_cc: form.numero_cc || undefined,
+      });
       if (error) toast.error(error.message);
-      else if (data && user) {
-        await supabase.from("profiles_fact_digit2").update({ company_id: data.id }).eq("user_id", user.id);
+      else {
         toast.success("Entreprise créée ! Rechargez la page.");
+        window.location.reload();
       }
     }
     setSaving(false);
