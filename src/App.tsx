@@ -56,6 +56,7 @@ function App() {
               <Route path="/invoices/:id" element={<InvoiceView />} />
               <Route path="/company" element={<Company />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
