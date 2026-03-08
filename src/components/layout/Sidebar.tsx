@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, Package, FileText, Building2, LogOut } from "lucide-react";
+import { useSuperAdmin } from "@/hooks/useSuperAdmin";
+import { LayoutDashboard, Users, Package, FileText, Building2, LogOut, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -14,6 +15,7 @@ const navItems = [
 
 export default function Sidebar() {
   const { signOut } = useAuth();
+  const { isSuperAdmin } = useSuperAdmin();
 
   return (
     <aside className="hidden md:flex w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
@@ -40,6 +42,21 @@ export default function Sidebar() {
             {item.label}
           </NavLink>
         ))}
+        {isSuperAdmin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              }`
+            }
+          >
+            <Crown className="h-4 w-4" />
+            Admin
+          </NavLink>
+        )}
       </nav>
       <div className="p-4">
         <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" onClick={signOut}>
