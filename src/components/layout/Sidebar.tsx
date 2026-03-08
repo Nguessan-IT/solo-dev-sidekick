@@ -15,6 +15,7 @@ const navItems = [
 
 export default function Sidebar() {
   const { signOut } = useAuth();
+  const { isSuperAdmin } = useSuperAdmin();
 
   return (
     <aside className="hidden md:flex w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
