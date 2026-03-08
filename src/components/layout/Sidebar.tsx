@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, Package, FileText, Building2, LogOut } from "lucide-react";
+import { useSuperAdmin } from "@/hooks/useSuperAdmin";
+import { LayoutDashboard, Users, Package, FileText, Building2, LogOut, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
