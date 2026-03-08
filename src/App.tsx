@@ -14,6 +14,7 @@ import InvoiceView from "@/pages/InvoiceView";
 import Company from "@/pages/Company";
 import Reports from "@/pages/Reports";
 import ResetPassword from "@/pages/ResetPassword";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
