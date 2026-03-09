@@ -98,6 +98,76 @@ export default function InvoiceCreate() {
     setItems(newItems);
   };
 
+  // Quick create client
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyId) return;
+    setSavingClient(true);
+    try {
+      const { data, error } = await supabase
+        .from("clients_fact_digit2")
+        .insert({ ...clientForm, company_id: companyId })
+        .select()
+        .single();
+      if (error) throw error;
+      toast.success("Client créé avec succès");
+      setClients([data, ...clients]);
+      setClientId(data.id);
+      setClientDialogOpen(false);
+      setClientForm({ name: "", email: "", phone: "", address: "", rccm: "", numero_cc: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création du client");
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
+  // Quick create product
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyId) return;
+    setSavingProduct(true);
+    try {
+      const { data, error } = await supabase
+        .from("products_fact_digit2")
+        .insert({
+          name: productForm.name,
+          price: parseFloat(productForm.price),
+          tva_rate: parseFloat(productForm.tva_rate),
+          category: productForm.category || null,
+          unit: productForm.unit,
+          is_service: productForm.is_service,
+          company_id: companyId,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      toast.success("Produit créé avec succès");
+      setProducts([data, ...products]);
+      // Auto-select in the item row if opened from there
+      if (productDialogIndex !== null) {
+        const newItems = [...items];
+        newItems[productDialogIndex].product_id = data.id;
+        newItems[productDialogIndex].description = data.name;
+        newItems[productDialogIndex].unit_price = data.price;
+        newItems[productDialogIndex].tva_rate = data.tva_rate ?? 18;
+        setItems(newItems);
+      }
+      setProductDialogOpen(false);
+      setProductDialogIndex(null);
+      setProductForm({ name: "", price: "", tva_rate: "18", category: "", unit: "unité", is_service: false });
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création du produit");
+    } finally {
+      setSavingProduct(false);
+    }
+  };
+
+  const openProductDialog = (index: number) => {
+    setProductDialogIndex(index);
+    setProductDialogOpen(true);
+  };
+
   const subtotal = items.reduce((sum, it) => sum + it.quantity * it.unit_price, 0);
   const tvaAmount = items.reduce((sum, it) => sum + (it.quantity * it.unit_price * it.tva_rate) / 100, 0);
   const total = subtotal + tvaAmount;
