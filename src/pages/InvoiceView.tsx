@@ -65,6 +65,7 @@ export default function InvoiceView() {
   const [client, setClient] = useState<Client | null>(null);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fneDialogOpen, setFneDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!id || !companyId) return;
