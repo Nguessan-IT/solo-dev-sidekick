@@ -274,29 +274,32 @@ export default function InvoiceCreate() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Client *</Label>
-              {clients.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Aucun client trouvé.</p>
-                  <Button type="button" variant="outline" size="sm" onClick={() => navigate("/clients")}>
-                    Ajouter un client
-                  </Button>
-                </div>
-              ) : (
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  required
+              <div className="flex items-center justify-between mb-1">
+                <Label>Client *</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-primary"
+                  onClick={() => setClientDialogOpen(true)}
                 >
-                  <option value="">Sélectionner un client</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+                  <UserPlus className="h-3.5 w-3.5 mr-1" />
+                  Nouveau client
+                </Button>
+              </div>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+                required
+              >
+                <option value="">Sélectionner un client</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Notes</Label>
