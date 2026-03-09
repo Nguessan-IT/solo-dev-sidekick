@@ -321,7 +321,19 @@ export default function InvoiceCreate() {
               <div key={i} className="space-y-3 p-4 border rounded-lg bg-muted/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <Label>Produit</Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label>Produit</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-primary"
+                        onClick={() => openProductDialog(i)}
+                      >
+                        <PackagePlus className="h-3.5 w-3.5 mr-1" />
+                        Nouveau
+                      </Button>
+                    </div>
                     <select
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       value={item.product_id}
