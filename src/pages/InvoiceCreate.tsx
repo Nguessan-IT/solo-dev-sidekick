@@ -45,6 +45,15 @@ export default function InvoiceCreate() {
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
+  // Quick create dialogs
+  const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [productDialogIndex, setProductDialogIndex] = useState<number | null>(null);
+  const [clientForm, setClientForm] = useState({ name: "", email: "", phone: "", address: "", rccm: "", numero_cc: "" });
+  const [productForm, setProductForm] = useState({ name: "", price: "", tva_rate: "18", category: "", unit: "unité", is_service: false });
+  const [savingClient, setSavingClient] = useState(false);
+  const [savingProduct, setSavingProduct] = useState(false);
+
   useEffect(() => {
     if (!companyId) {
       setLoadingData(false);
