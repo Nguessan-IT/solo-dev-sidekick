@@ -389,6 +389,42 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback_keyli: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          id: string
+          message: string
+          status: string
+          subject: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          subject: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_reports_fact_digit2: {
         Row: {
           clients_count: number
@@ -978,6 +1014,42 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           ville?: string
+        }
+        Relationships: []
+      }
+      payment_attempts_keyli: {
+        Row: {
+          amount: number | null
+          created_at: string
+          email: string | null
+          error_message: string | null
+          id: string
+          paystack_reference: string | null
+          plan_type: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          paystack_reference?: string | null
+          plan_type?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          paystack_reference?: string | null
+          plan_type?: string | null
+          status?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1681,6 +1753,51 @@ export type Database = {
           name?: string
           phone?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      signup_attempts_keyli: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          email: string | null
+          error_message: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: string | null
+          step_reached: string
+          user_agent: string | null
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+          step_reached?: string
+          user_agent?: string | null
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          error_message?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+          step_reached?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
