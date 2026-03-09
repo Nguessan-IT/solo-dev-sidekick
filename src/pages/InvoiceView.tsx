@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Download, Printer } from "lucide-react";
+import { ArrowLeft, Download, Printer, Shield } from "lucide-react";
+import { FneSubmitDialog } from "@/components/invoices/FneSubmitDialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -64,6 +65,7 @@ export default function InvoiceView() {
   const [client, setClient] = useState<Client | null>(null);
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fneDialogOpen, setFneDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!id || !companyId) return;
@@ -179,6 +181,12 @@ export default function InvoiceView() {
           Retour
         </Button>
         <div className="flex gap-2">
+          {invoice.fne_status !== "validated" && (
+            <Button variant="outline" onClick={() => setFneDialogOpen(true)} className="border-primary text-primary hover:bg-primary/10">
+              <Shield className="h-4 w-4 mr-2" />
+              Normaliser FNE
+            </Button>
+          )}
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
@@ -344,6 +352,15 @@ export default function InvoiceView() {
           </div>
         </CardContent>
       </Card>
+      <FneSubmitDialog
+        open={fneDialogOpen}
+        onOpenChange={setFneDialogOpen}
+        invoiceId={invoice.id}
+        invoiceNumber={invoice.invoice_number}
+        onSuccess={(fneNum) => {
+          setInvoice((prev) => prev ? { ...prev, fne_status: "validated", fne_number: fneNum } : prev);
+        }}
+      />
     </div>
   );
 }
