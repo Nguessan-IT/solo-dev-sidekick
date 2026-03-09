@@ -352,6 +352,15 @@ export default function InvoiceView() {
           </div>
         </CardContent>
       </Card>
+      <FneSubmitDialog
+        open={fneDialogOpen}
+        onOpenChange={setFneDialogOpen}
+        invoiceId={invoice.id}
+        invoiceNumber={invoice.invoice_number}
+        onSuccess={(fneNum) => {
+          setInvoice((prev) => prev ? { ...prev, fne_status: "validated", fne_number: fneNum } : prev);
+        }}
+      />
     </div>
   );
 }
