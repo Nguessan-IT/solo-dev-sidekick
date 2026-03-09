@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
-import { LayoutDashboard, Users, Package, FileText, Building2, LogOut, Crown } from "lucide-react";
+import { LayoutDashboard, Users, Package, FileText, Building2, LogOut, Crown, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
 
 const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Tableau de bord" },
@@ -20,47 +21,75 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="p-6">
-        <h1 className="text-xl font-bold text-sidebar-primary">Fact-Digit</h1>
-        <p className="text-xs text-sidebar-foreground/60 mt-1">Facturation & Gestion</p>
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-sidebar-primary flex items-center justify-center shadow-lg shadow-sidebar-primary/20">
+            <Zap className="h-5 w-5 text-sidebar-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-sidebar-foreground tracking-tight">Fact-Digit</h1>
+            <p className="text-[10px] text-sidebar-foreground/50 font-medium tracking-wider uppercase">Facturation & Gestion</p>
+          </div>
+        </div>
       </div>
       <Separator className="bg-sidebar-border" />
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-3 space-y-0.5">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === "/"}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
+              `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  ? "bg-sidebar-accent text-sidebar-primary font-semibold shadow-sm"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
               }`
             }
           >
-            <item.icon className="h-4 w-4" />
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
+                  isActive ? "bg-sidebar-primary/15" : "bg-transparent group-hover:bg-sidebar-accent"
+                }`}>
+                  <item.icon className="h-4 w-4" />
+                </div>
+                {item.label}
+              </>
+            )}
           </NavLink>
         ))}
         {isSuperAdmin && (
           <NavLink
             to="/admin"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
+              `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                 isActive
-                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  ? "bg-sidebar-accent text-sidebar-primary font-semibold shadow-sm"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
               }`
             }
           >
-            <Crown className="h-4 w-4" />
-            Admin
+            {({ isActive }) => (
+              <>
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
+                  isActive ? "bg-sidebar-primary/15" : "bg-transparent group-hover:bg-sidebar-accent"
+                }`}>
+                  <Crown className="h-4 w-4" />
+                </div>
+                Admin
+              </>
+            )}
           </NavLink>
         )}
       </nav>
-      <div className="p-4">
-        <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent" onClick={signOut}>
-          <LogOut className="h-4 w-4 mr-2" />
+      <div className="p-3">
+        <Separator className="bg-sidebar-border mb-3" />
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-sidebar-foreground/50 hover:text-destructive hover:bg-destructive/10 rounded-xl h-10"
+          onClick={signOut}
+        >
+          <LogOut className="h-4 w-4 mr-3" />
           Déconnexion
         </Button>
       </div>
