@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Plus, Trash2, ArrowLeft, UserPlus, PackagePlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Client {
@@ -43,6 +44,15 @@ export default function InvoiceCreate() {
   ]);
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Quick create dialogs
+  const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [productDialogOpen, setProductDialogOpen] = useState(false);
+  const [productDialogIndex, setProductDialogIndex] = useState<number | null>(null);
+  const [clientForm, setClientForm] = useState({ name: "", email: "", phone: "", address: "", rccm: "", numero_cc: "" });
+  const [productForm, setProductForm] = useState({ name: "", price: "", tva_rate: "18", category: "", unit: "unité", is_service: false });
+  const [savingClient, setSavingClient] = useState(false);
+  const [savingProduct, setSavingProduct] = useState(false);
 
   useEffect(() => {
     if (!companyId) {
@@ -86,6 +96,76 @@ export default function InvoiceCreate() {
       }
     }
     setItems(newItems);
+  };
+
+  // Quick create client
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyId) return;
+    setSavingClient(true);
+    try {
+      const { data, error } = await supabase
+        .from("clients_fact_digit2")
+        .insert({ ...clientForm, company_id: companyId })
+        .select()
+        .single();
+      if (error) throw error;
+      toast.success("Client créé avec succès");
+      setClients([data, ...clients]);
+      setClientId(data.id);
+      setClientDialogOpen(false);
+      setClientForm({ name: "", email: "", phone: "", address: "", rccm: "", numero_cc: "" });
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création du client");
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
+  // Quick create product
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyId) return;
+    setSavingProduct(true);
+    try {
+      const { data, error } = await supabase
+        .from("products_fact_digit2")
+        .insert({
+          name: productForm.name,
+          price: parseFloat(productForm.price),
+          tva_rate: parseFloat(productForm.tva_rate),
+          category: productForm.category || null,
+          unit: productForm.unit,
+          is_service: productForm.is_service,
+          company_id: companyId,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      toast.success("Produit créé avec succès");
+      setProducts([data, ...products]);
+      // Auto-select in the item row if opened from there
+      if (productDialogIndex !== null) {
+        const newItems = [...items];
+        newItems[productDialogIndex].product_id = data.id;
+        newItems[productDialogIndex].description = data.name;
+        newItems[productDialogIndex].unit_price = data.price;
+        newItems[productDialogIndex].tva_rate = data.tva_rate ?? 18;
+        setItems(newItems);
+      }
+      setProductDialogOpen(false);
+      setProductDialogIndex(null);
+      setProductForm({ name: "", price: "", tva_rate: "18", category: "", unit: "unité", is_service: false });
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la création du produit");
+    } finally {
+      setSavingProduct(false);
+    }
+  };
+
+  const openProductDialog = (index: number) => {
+    setProductDialogIndex(index);
+    setProductDialogOpen(true);
   };
 
   const subtotal = items.reduce((sum, it) => sum + it.quantity * it.unit_price, 0);
@@ -194,29 +274,32 @@ export default function InvoiceCreate() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Client *</Label>
-              {clients.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Aucun client trouvé.</p>
-                  <Button type="button" variant="outline" size="sm" onClick={() => navigate("/clients")}>
-                    Ajouter un client
-                  </Button>
-                </div>
-              ) : (
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  required
+              <div className="flex items-center justify-between mb-1">
+                <Label>Client *</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-primary"
+                  onClick={() => setClientDialogOpen(true)}
                 >
-                  <option value="">Sélectionner un client</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+                  <UserPlus className="h-3.5 w-3.5 mr-1" />
+                  Nouveau client
+                </Button>
+              </div>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+                required
+              >
+                <option value="">Sélectionner un client</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Notes</Label>
@@ -238,7 +321,19 @@ export default function InvoiceCreate() {
               <div key={i} className="space-y-3 p-4 border rounded-lg bg-muted/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <Label>Produit</Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label>Produit</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs text-primary"
+                        onClick={() => openProductDialog(i)}
+                      >
+                        <PackagePlus className="h-3.5 w-3.5 mr-1" />
+                        Nouveau
+                      </Button>
+                    </div>
                     <select
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       value={item.product_id}
@@ -323,11 +418,60 @@ export default function InvoiceCreate() {
           <Button type="button" variant="outline" onClick={() => navigate("/invoices")}>
             Annuler
           </Button>
-          <Button type="submit" disabled={saving || clients.length === 0}>
+          <Button type="submit" disabled={saving}>
             {saving ? "Enregistrement..." : "Créer la facture"}
           </Button>
         </div>
       </form>
+
+      {/* Dialog Nouveau Client */}
+      <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" />Nouveau client</DialogTitle></DialogHeader>
+          <form onSubmit={handleCreateClient} className="space-y-4">
+            <div><Label>Nom *</Label><Input value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} required /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Email</Label><Input type="email" value={clientForm.email} onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })} /></div>
+              <div><Label>Téléphone</Label><Input value={clientForm.phone} onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })} /></div>
+            </div>
+            <div><Label>Adresse</Label><Input value={clientForm.address} onChange={(e) => setClientForm({ ...clientForm, address: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>RCCM</Label><Input value={clientForm.rccm} onChange={(e) => setClientForm({ ...clientForm, rccm: e.target.value })} /></div>
+              <div><Label>N° CC</Label><Input value={clientForm.numero_cc} onChange={(e) => setClientForm({ ...clientForm, numero_cc: e.target.value })} /></div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setClientDialogOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={savingClient}>{savingClient ? "Création..." : "Créer le client"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Nouveau Produit */}
+      <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><PackagePlus className="h-5 w-5" />Nouveau produit / service</DialogTitle></DialogHeader>
+          <form onSubmit={handleCreateProduct} className="space-y-4">
+            <div><Label>Nom *</Label><Input value={productForm.name} onChange={(e) => setProductForm({ ...productForm, name: e.target.value })} required /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Prix (FCFA) *</Label><Input type="number" value={productForm.price} onChange={(e) => setProductForm({ ...productForm, price: e.target.value })} required /></div>
+              <div><Label>TVA %</Label><Input type="number" value={productForm.tva_rate} onChange={(e) => setProductForm({ ...productForm, tva_rate: e.target.value })} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Catégorie</Label><Input value={productForm.category} onChange={(e) => setProductForm({ ...productForm, category: e.target.value })} /></div>
+              <div><Label>Unité</Label><Input value={productForm.unit} onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })} /></div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="is_service_quick" checked={productForm.is_service} onChange={(e) => setProductForm({ ...productForm, is_service: e.target.checked })} />
+              <Label htmlFor="is_service_quick">C'est un service</Label>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setProductDialogOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={savingProduct}>{savingProduct ? "Création..." : "Créer le produit"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
