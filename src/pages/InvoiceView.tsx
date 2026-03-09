@@ -181,6 +181,12 @@ export default function InvoiceView() {
           Retour
         </Button>
         <div className="flex gap-2">
+          {invoice.fne_status !== "validated" && (
+            <Button variant="outline" onClick={() => setFneDialogOpen(true)} className="border-primary text-primary hover:bg-primary/10">
+              <Shield className="h-4 w-4 mr-2" />
+              Normaliser FNE
+            </Button>
+          )}
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
