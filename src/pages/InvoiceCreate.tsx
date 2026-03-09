@@ -418,11 +418,60 @@ export default function InvoiceCreate() {
           <Button type="button" variant="outline" onClick={() => navigate("/invoices")}>
             Annuler
           </Button>
-          <Button type="submit" disabled={saving || clients.length === 0}>
+          <Button type="submit" disabled={saving}>
             {saving ? "Enregistrement..." : "Créer la facture"}
           </Button>
         </div>
       </form>
+
+      {/* Dialog Nouveau Client */}
+      <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" />Nouveau client</DialogTitle></DialogHeader>
+          <form onSubmit={handleCreateClient} className="space-y-4">
+            <div><Label>Nom *</Label><Input value={clientForm.name} onChange={(e) => setClientForm({ ...clientForm, name: e.target.value })} required /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Email</Label><Input type="email" value={clientForm.email} onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })} /></div>
+              <div><Label>Téléphone</Label><Input value={clientForm.phone} onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })} /></div>
+            </div>
+            <div><Label>Adresse</Label><Input value={clientForm.address} onChange={(e) => setClientForm({ ...clientForm, address: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>RCCM</Label><Input value={clientForm.rccm} onChange={(e) => setClientForm({ ...clientForm, rccm: e.target.value })} /></div>
+              <div><Label>N° CC</Label><Input value={clientForm.numero_cc} onChange={(e) => setClientForm({ ...clientForm, numero_cc: e.target.value })} /></div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setClientDialogOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={savingClient}>{savingClient ? "Création..." : "Créer le client"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Nouveau Produit */}
+      <Dialog open={productDialogOpen} onOpenChange={setProductDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><PackagePlus className="h-5 w-5" />Nouveau produit / service</DialogTitle></DialogHeader>
+          <form onSubmit={handleCreateProduct} className="space-y-4">
+            <div><Label>Nom *</Label><Input value={productForm.name} onChange={(e) => setProductForm({ ...productForm, name: e.target.value })} required /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Prix (FCFA) *</Label><Input type="number" value={productForm.price} onChange={(e) => setProductForm({ ...productForm, price: e.target.value })} required /></div>
+              <div><Label>TVA %</Label><Input type="number" value={productForm.tva_rate} onChange={(e) => setProductForm({ ...productForm, tva_rate: e.target.value })} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Catégorie</Label><Input value={productForm.category} onChange={(e) => setProductForm({ ...productForm, category: e.target.value })} /></div>
+              <div><Label>Unité</Label><Input value={productForm.unit} onChange={(e) => setProductForm({ ...productForm, unit: e.target.value })} /></div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="is_service_quick" checked={productForm.is_service} onChange={(e) => setProductForm({ ...productForm, is_service: e.target.checked })} />
+              <Label htmlFor="is_service_quick">C'est un service</Label>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setProductDialogOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={savingProduct}>{savingProduct ? "Création..." : "Créer le produit"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
